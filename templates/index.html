@@ -85,7 +85,7 @@
       const data = await res.json();
       const list = document.getElementById('message-list');
       list.innerHTML = '';
-      const currentUser = "{{ session.get('username', '') }}";
+      const currentUser = "{{ session.get('username', '') | escape }}";
 
       data.forEach(msg => {
         const message = document.createElement('div');
@@ -93,29 +93,7 @@
         if (msg[2] === currentUser) {
           message.classList.add('right');
         }
-        // message.innerHTML = `<div class="username">${msg[2]}</div><div class="content">${msg[1]}</div>`;
-        const time = new Date(msg[3]).toLocaleString('uk-UA', {
-          hour: '2-digit',
-          minute: '2-digit',
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        });
 
-        const initial = msg[2] ? msg[2][0].toUpperCase() : '?';
-
-        // message.innerHTML = `
-        //   <div class="d-flex align-items-center gap-2">
-        //     <div class="avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 40px; height: 40px; font-weight: bold;">
-        //       ${initial}
-        //     </div>
-        //     <div>
-        //       <div class="username">${msg[2]}</div>
-        //       <div class="content">${msg[1]}</div>
-        //       <div class="text-muted" style="font-size: 0.8em;">${time}</div>
-        //     </div>
-        //   </div>
-        // `;
         const initial = msg[2] ? msg[2][0].toUpperCase() : '?';
 
         const time = new Date(msg[3]).toLocaleString('uk-UA', {
@@ -137,10 +115,9 @@
         list.appendChild(message);
       });
     }
-
-    loadMessages();
-    setInterval(loadMessages, 5000);
   </script>
-
+  <script>
+  const currentUser = "{{ session.get('username') | default('', true) }}";
+  </script>
 </body>
 </html>
