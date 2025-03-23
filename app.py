@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request, redirect
 import psycopg2
 import os
+import os
 
-app = Flask(__name__)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+# app = Flask(__name__)
 
 # Підключення до бази
 def get_db_connection():
