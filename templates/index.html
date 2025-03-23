@@ -8,10 +8,25 @@
     <button type="submit">Надіслати</button>
   </form>
   <h2>Історія:</h2>
-  <ul>
-    {% for msg in messages %}
-      <li>{{ msg[1] }}</li>
-    {% endfor %}
-  </ul>
+  <ul id="message-list"></ul>
+  <script>
+  async function loadMessages() {
+    const res = await fetch('/messages');
+    const data = await res.json();
+    const list = document.getElementById('message-list');
+    list.innerHTML = '';
+    data.forEach(msg => {
+      const li = document.createElement('li');
+      li.textContent = msg[1]; // msg[1] — текст повідомлення
+      list.appendChild(li);
+    });
+  }
+
+  // Завантажити одразу при відкритті
+  loadMessages();
+
+  // Оновлювати кожні 5 секунд
+  setInterval(loadMessages, 5000);
+</script>
 </body>
 </html>
