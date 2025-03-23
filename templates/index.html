@@ -80,42 +80,52 @@
   </div>
 
   <script>
-    async function loadMessages() {
-      const res = await fetch('/messages');
-      const data = await res.json();
-      const list = document.getElementById('message-list');
-      list.innerHTML = '';
-      const currentUser = "{{ session.get('username', '') | escape }}";
+      async function loadMessages() {
+        try {
+          const res = await fetch('/messages');
+          const data = await res.json();
+          console.log(data); // перевіримо тут
 
-      data.forEach(msg => {
-        const message = document.createElement('div');
-        message.classList.add('message');
-        if (msg[2] === currentUser) {
-          message.classList.add('right');
+          const list = document.getElementById('message-list');
+          list.innerHTML = '';
+          const currentUser = "{{ session.get('username', '') | escape }}";
+
+          data.forEach(msg => {
+            const message = document.createElement('div');
+            message.classList.add('message');
+            if (msg[2] === currentUser) {
+              message.classList.add('right');
+            }
+
+            const initial = msg[2] ? msg[2][0].toUpperCase() : '?';
+
+            const time = new Date(msg[3]).toLocaleString('uk-UA', {
+              hour: '2-digit',
+              minute: '2-digit',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric'
+            });
+
+            message.innerHTML = `
+              <div class="avatar">${initial}</div>
+              <div class="bubble">
+                <div class="username">${msg[2]}</div>
+                <div class="content">${msg[1]}</div>
+                <div class="text-muted">${time}</div>
+              </div>
+            `;
+
+            list.appendChild(message);
+          });
+        } catch (error) {
+          console.error('Помилка при завантаженні повідомлень:', error);
         }
+      }
 
-        const initial = msg[2] ? msg[2][0].toUpperCase() : '?';
-
-        const time = new Date(msg[3]).toLocaleString('uk-UA', {
-          hour: '2-digit',
-          minute: '2-digit',
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        });
-
-        message.innerHTML = `
-          <div class="avatar">${initial}</div>
-          <div class="bubble">
-            <div class="username">${msg[2]}</div>
-            <div class="content">${msg[1]}</div>
-            <div class="text-muted">${time}</div>
-          </div>
-        `;
-        list.appendChild(message);
-      });
-    }
-  </script>
+      loadMessages();
+      setInterval(loadMessages, 5000);
+</script>
   <script>
   const currentUser = "{{ session.get('username') | default('', true) }}";
   </script>
