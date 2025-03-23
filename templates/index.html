@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html>
-<head><title>Повідомлення</title></head>
+<head>
+  <meta charset="UTF-8">
+  <title>Повідомлення</title>
+</head>
 <body>
-{% if session['username'] %}
-  <p>Привіт, {{ session['username'] }}! <a href="/logout">Вийти</a></p>
-{% endif %}
+
+  {% if session.get('username') %}
+    <p>Привіт, {{ session['username'] }}! <a href="/logout">Вийти</a></p>
+  {% else %}
+    <p><a href="/login">Увійти</a> або <a href="/register">Зареєструватись</a></p>
+  {% endif %}
+
   <h1>Залиш повідомлення</h1>
-  <form method="POST" action="/add">
-    <input type="text" name="content" required>
-    <button type="submit">Надіслати</button>
-  </form>
-  <h2>Історія:</h2>
+
+  {% if session.get('username') %}
+    <form method="POST" action="/add">
+      <input type="text" name="content" required>
+      <button type="submit">Надіслати</button>
+    </form>
+  {% else %}
+    <p>Щоб залишити повідомлення, увійдіть у свій акаунт.</p>
+  {% endif %}
+
+  <h2>Історія повідомлень:</h2>
   <ul id="message-list"></ul>
+
   <script>
-  async function loadMessages() {
-    const res = await fetch('/messages');
-    const data = await res.json();
-    const list = document.getElementById('message-list');
-    list.innerHTML = '';
-    data.forEach(msg => {
-      const li = document.createElement('li');
-      li.textContent = msg[1]; // msg[1] — текст повідомлення
-      list.appendChild(li);
-    });
-  }
+    async function loadMessages() {
+      const res = await fetch('/messages');
+      const data = await res.json();
+      const list = document.getElementById('message-list');
+      list.innerHTML = '';
+      data.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = msg[1];
+        list.appendChild(li);
+      });
+    }
 
-  // Завантажити одразу при відкритті
-  loadMessages();
+    loadMessages();
+    setInterval(loadMessages, 5000);
+  </script>
 
-  // Оновлювати кожні 5 секунд
-  setInterval(loadMessages, 5000);
-</script>
 </body>
 </html>
