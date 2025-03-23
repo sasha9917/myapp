@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import psycopg2
 import os
+from flask import jsonify
 
 app = Flask(__name__)  # ← Це має бути ДО @app.route
 
@@ -44,6 +45,15 @@ def get_db_connection():
     )
     return conn
 
+@app.route('/messages')
+def messages():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM messages ORDER BY id ASC;')
+    messages = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify(messages)
 # Запуск сервера
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
