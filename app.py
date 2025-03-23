@@ -21,6 +21,9 @@ def get_db_connection():
 # Головна сторінка
 @app.route('/')
 def index():
+    if 'user_id' not in session:
+        return redirect('/login')
+
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute('SELECT * FROM messages ORDER BY id ASC;')
