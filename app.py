@@ -35,9 +35,11 @@ def add():
     if 'user_id' not in session:
         return redirect('/login')
     content = request.form['content']
+    username = session.get('username')
+
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO messages (content) VALUES (%s)', (content,))
+    cur.execute('INSERT INTO messages (content, username) VALUES (%s, %s)', (content, username))
     conn.commit()
     cur.close()
     conn.close()
