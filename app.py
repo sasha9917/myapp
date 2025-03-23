@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request, redirect
 import psycopg2
 import os
-import os
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-# app = Flask(__name__)
+app = Flask(__name__)  # ← Це має бути ДО @app.route
 
 # Підключення до бази
 def get_db_connection():
@@ -38,3 +34,8 @@ def add():
     cur.close()
     conn.close()
     return redirect('/')
+
+# Запуск сервера
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
