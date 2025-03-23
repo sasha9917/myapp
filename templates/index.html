@@ -2,6 +2,9 @@
 <html>
 <head><title>Повідомлення</title></head>
 <body>
+{% if session['username'] %}
+  <p>Привіт, {{ session['username'] }}! <a href="/logout">Вийти</a></p>
+{% endif %}
   <h1>Залиш повідомлення</h1>
   <form method="POST" action="/add">
     <input type="text" name="content" required>

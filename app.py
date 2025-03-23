@@ -2,9 +2,12 @@ from flask import Flask, render_template, request, redirect
 import psycopg2
 import os
 from flask import jsonify
+from flask import Flask, render_template, request, redirect, session, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # ← Це має бути ДО @app.route
 
+app.secret_key = 'дуже_секретний_рядок_для_сесій'
 # Підключення до бази
 def get_db_connection():
     conn = psycopg2.connect(
@@ -54,6 +57,49 @@ def messages():
     cur.close()
     conn.close()
     return jsonify(messages)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = generate_password_hash(request.form['password'])
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, password))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect('/login')
+    
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE username = %s', (username,))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if user and check_password_hash(user[2], password):
+            session['user_id'] = user[0]
+            session['username'] = user[1]
+            return redirect('/')
+        else:
+            return 'Невірне імʼя користувача або пароль'
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 # Запуск сервера
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
